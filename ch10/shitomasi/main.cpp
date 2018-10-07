@@ -24,7 +24,18 @@ static void onGoodFeaturesToTrack(int, void *)
     std::cout << "Corner Number: " << corners.size() << std::endl;
 
     for (auto &c : corners) {
-        circle(copy, c, 3, Scalar(0, 0, 255), 2);
+        circle(copy, c, 3, Scalar(0, 255, 0), 1);
+    }
+
+    Size winSize = Size(5, 5);
+    Size zeroZone = Size(-1, -1);
+
+    TermCriteria criteria(TermCriteria::EPS + TermCriteria::MAX_ITER, 40, 0.01);
+    cornerSubPix(gray, corners, winSize, zeroZone, criteria);
+
+    for (auto &c : corners) {
+        circle(copy, c, 3, Scalar(0, 0, 255), 1);
+        printf("pf = (%f, %f)\n", c.x, c.y);
     }
     imshow("Corner", copy);
 }
