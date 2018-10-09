@@ -41,6 +41,45 @@ static void surfKeyPoint(int argc, char **argv)
     imshow("img2", img2);
 }
 
+static void surfMatch(int argc, char **argv)
+{
+    std::string file1 = "../../images/1.jpg";
+    std::string file2 = "../../images/2.jpg";
+    if (argc == 3) {
+        file1 = argv[1];
+        file2 = argv[2];
+    }
+    Mat src1 = imread(file1);
+    Mat src2 = imread(file2);
+    if (src1.empty() || src2.empty()) {
+        std::cout << " Image empty\n";
+    }
+    imshow("src1", src1);
+    imshow("src2", src2);
+
+    int minHessian = 400;
+    cv::Ptr<SurfFeatureDetector> detector = SurfFeatureDetector::create(minHessian);
+    std::vector<KeyPoint> keypoint1, keypoint2;
+
+    detector->detect(src1, keypoint1);
+    detector->detect(src2, keypoint2);
+
+    cv::Ptr<SurfDescriptorExtractor> extractor = SurfDescriptorExtractor::create();
+
+    Mat descriptor1, descriptor2;
+    extractor->compute(src1, keypoint1, descriptor1);
+    extractor->compute(src2, keypoint2, descriptor2);
+
+    Ptr<BFMatcher> matcher = BFMatcher::create();
+    std::vector<DMatch> matches;
+    matcher->match(descriptor1, descriptor2, matches);
+
+    Mat img;
+    drawMatches(src1, keypoint1, src2, keypoint2, matches, img, Scalar(0, 0, 255), Scalar(255, 0, 0));
+
+    imshow("matches", img);
+}
+
 int main(int argc, char **argv)
 {
     std::string imgname = "../../images/1.jpg";
@@ -48,7 +87,9 @@ int main(int argc, char **argv)
         imgname = argv[1];
     }
 
-    surfKeyPoint(argc, argv);
+    // surfKeyPoint(argc, argv);
+
+    surfMatch(argc, argv);
 
     waitKey(0);
     return 0;
